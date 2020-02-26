@@ -303,6 +303,9 @@ static unsigned long erofs_shrink_scan(struct shrinker *shrink,
 		sbi->shrinker_run_no = run_no;
 
 		freed += erofs_shrink_workstation(sbi, nr, false);
+#ifdef CONFIG_EROFS_FS_ZIP
+		freed += erofs_shrink_workstation(sbi, nr - freed, false);
+#endif
 
 		spin_lock(&erofs_sb_list_lock);
 		/* Get the next list element before we move this one */
