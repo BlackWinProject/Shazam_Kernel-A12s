@@ -1020,16 +1020,6 @@ static const char *system_state_show[SYSTEM_END] = {
 	"SYSTEM_POWER_OFF",
 	"SYSTEM_RESTART",
 };
-/*
- * The number of CPUs online, not counting this CPU (which may not be
- * fully online and so not counted in num_online_cpus()).
- */
-static inline unsigned int num_other_online_cpus(void)
-{
-	unsigned int this_cpu_online = cpu_online(smp_processor_id());
-
-	return num_online_cpus() - this_cpu_online;
-}
 
 void smp_send_stop(void)
 {
@@ -1038,9 +1028,6 @@ void smp_send_stop(void)
 	int cpu;
 
 	if (num_online_cpus() > 1) {
-	if (num_other_online_cpus()) {
-		cpumask_t mask;
-
 		cpumask_copy(&mask, cpu_online_mask);
 		cpumask_clear_cpu(smp_processor_id(), &mask);
 		cpumask_copy(&cpu_stop_mask, &mask);
@@ -1061,11 +1048,8 @@ void smp_send_stop(void)
 		if (cpu_online(cpu))
 			pr_warning("SMP: failed to stop CPU%d\n", cpu);
 	}
-	timeout = USEC_PER_SEC;
-	while (num_other_online_cpus() && timeout--)
-		udelay(1);
 
-	if (num_other_online_cpus())
+	if (num_online_cpus() > 1)
 		pr_warning("SMP: failed to stop secondary CPUs %*pbl\n",
 			   cpumask_pr_args(cpu_online_mask));
 
