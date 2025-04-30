@@ -564,9 +564,6 @@ ssize_t f2fs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
 			(void *)XATTR_NEXT_ENTRY(entry) > last_base_addr) {
 			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has corrupted xattr",
 						inode->i_ino);
-			f2fs_msg(dentry->d_sb, KERN_ERR,
-				 "inode (%lu) has corrupted xattr",
-				 inode->i_ino);
 			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
 			error = -EFSCORRUPTED;
 			goto cleanup;
